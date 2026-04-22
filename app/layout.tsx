@@ -25,7 +25,10 @@ export default function RootLayout({
           </a>
         </header>
         <div className="flex">
-          <Sidebar />
+          <Sidebar
+            supabaseUrl={process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''}
+            supabaseKey={process.env.SUPABASE_ANON_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''}
+          />
           <main className="flex-1 min-w-0 px-6 py-8">
             {children}
           </main>

@@ -14,20 +14,13 @@ const statusDot: Record<string, string> = {
   error: 'bg-red-500',
 }
 
-function getClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
-
-export default function Sidebar() {
+export default function Sidebar({ supabaseUrl, supabaseKey }: { supabaseUrl: string; supabaseKey: string }) {
   const pathname = usePathname()
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const sb = getClient()
+    const sb = createClient(supabaseUrl, supabaseKey)
 
     async function load() {
       const { data } = await sb
