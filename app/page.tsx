@@ -5,10 +5,16 @@ import VideoList from '@/components/VideoList'
 export const revalidate = 0
 
 export default async function Home() {
-  const { data: videos } = await getSupabase()
-    .from('videos')
-    .select('*')
-    .order('created_at', { ascending: false })
+  let videos = null
+  try {
+    const { data } = await getSupabase()
+      .from('videos')
+      .select('*')
+      .order('created_at', { ascending: false })
+    videos = data
+  } catch {
+    // se Supabase non è raggiungibile, mostra comunque la pagina
+  }
 
   return (
     <div className="space-y-10">

@@ -9,11 +9,17 @@ export const revalidate = 0
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const { data: video } = await getSupabase()
-    .from('videos')
-    .select('*')
-    .eq('id', id)
-    .single()
+  let video = null
+  try {
+    const { data } = await getSupabase()
+      .from('videos')
+      .select('*')
+      .eq('id', id)
+      .single()
+    video = data
+  } catch {
+    notFound()
+  }
 
   if (!video) notFound()
 
