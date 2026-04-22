@@ -3,13 +3,6 @@ import { YoutubeTranscript } from 'youtube-transcript'
 import Anthropic from '@anthropic-ai/sdk'
 import { createClient } from '@supabase/supabase-js'
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
-
 function extractVideoId(url: string): string | null {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
@@ -23,6 +16,12 @@ function extractVideoId(url: string): string | null {
 }
 
 export async function POST(req: NextRequest) {
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+
   let videoId = ''
 
   try {
@@ -34,7 +33,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'URL YouTube non valido' }, { status: 400 })
     }
 
-    // Create DB record
     const { data: video, error: dbError } = await supabase
       .from('videos')
       .insert({
@@ -48,7 +46,6 @@ export async function POST(req: NextRequest) {
     if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 })
     videoId = video.id
 
-    // Fetch transcript from YouTube
     const segments = await YoutubeTranscript.fetchTranscript(youtubeId)
     const rawTranscript = segments.map((s) => s.text).join(' ')
 
@@ -60,7 +57,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Clean transcript + generate title and summary with Claude
     const msg = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 8192,

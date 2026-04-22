@@ -1,11 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-export type VideoStatus = 'uploading' | 'processing' | 'done' | 'error'
+export type VideoStatus = 'uploading' | 'uploaded' | 'processing' | 'done' | 'error'
 
 export interface Video {
   id: string
@@ -25,3 +20,18 @@ export interface Message {
   content: string
   created_at: string
 }
+
+export function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+
+// Alias per retrocompatibilità con il client-side (Sidebar)
+export const supabase = typeof window !== 'undefined'
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+  : null as never

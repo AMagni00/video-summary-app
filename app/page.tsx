@@ -1,11 +1,11 @@
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import VideoUpload from '@/components/VideoUpload'
 import VideoList from '@/components/VideoList'
 
 export const revalidate = 0
 
 export default async function Home() {
-  const { data: videos } = await supabase
+  const { data: videos } = await getSupabase()
     .from('videos')
     .select('*')
     .order('created_at', { ascending: false })

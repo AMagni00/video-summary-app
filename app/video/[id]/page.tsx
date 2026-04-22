@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { getSupabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import ChatPanel from '@/components/ChatPanel'
@@ -9,7 +9,7 @@ export const revalidate = 0
 export default async function VideoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
-  const { data: video } = await supabase
+  const { data: video } = await getSupabase()
     .from('videos')
     .select('*')
     .eq('id', id)
