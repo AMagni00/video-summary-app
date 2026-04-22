@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { supabase, Video } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+import { Video } from '@/lib/supabase'
 
 const statusDot: Record<string, string> = {
   done: 'bg-green-500',
@@ -13,29 +14,38 @@ const statusDot: Record<string, string> = {
   error: 'bg-red-500',
 }
 
+function getClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const [videos, setVideos] = useState<Video[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const sb = getClient()
+
     async function load() {
-      const { data } = await supabase
+      const { data } = await sb
         .from('videos')
         .select('*')
         .order('created_at', { ascending: false })
       setVideos(data || [])
       setLoading(false)
     }
+
     load()
 
-    // Realtime: aggiorna la lista quando cambiano i video
-    const channel = supabase
+    const channel = sb
       .channel('videos-sidebar')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'videos' }, load)
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
+    return () => { sb.removeChannel(channel) }
   }, [])
 
   return (

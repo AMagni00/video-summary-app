@@ -27,11 +27,3 @@ export function getSupabase() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 }
-
-// Alias per retrocompatibilità con il client-side (Sidebar)
-export const supabase = typeof window !== 'undefined'
-  ? createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-  : null as never
